@@ -13,7 +13,7 @@ type Repository[T Entity] interface {
     FindFirstBy(fs ...Field) (*T, error)
     CreateBulk(ts []T) error
     Create(t *T) error
-    Update(t *T, data map[string]interface{}) error
+    Update(t *T, fs ...Field) error
     Delete(t *T) error
 }
 ```

@@ -64,8 +64,14 @@ func (r Gorm[T]) CreateBulk(ts []T) error {
 	return r.db.Create(&ts).Error
 }
 
-func (r Gorm[T]) Update(t *T, data map[string]interface{}) error {
-	return r.db.Model(t).Updates(data).Error
+func (r Gorm[T]) Update(t *T, fs ...Field) error {
+	updateFields := make(map[string]interface{}, len(fs))
+
+	for _, f := range fs {
+		updateFields[f.Column] = f.Value
+	}
+
+	return r.db.Model(t).Updates(updateFields).Error
 }
 
 func (r Gorm[T]) Delete(t *T) error {
