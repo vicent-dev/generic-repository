@@ -9,6 +9,7 @@ type Field struct {
 
 type Repository[T Entity] interface {
 	Find(id int) (*T, error)
+	FindByWithRelations(fs ...Field) ([]T, error)
 	FindWithRelations(id int) (*T, error)
 	FindBy(fs ...Field) ([]T, error)
 	FindFirstBy(fs ...Field) (*T, error)

@@ -44,6 +44,24 @@ func (r Gorm[T]) FindBy(fs ...Field) ([]T, error) {
 	return t, nil
 }
 
+func (r Gorm[T]) FindByWithRelations(fs ...Field) ([]T, error) {
+	var t []T
+
+	whereClause := make(map[string]interface{}, len(fs))
+
+	for _, f := range fs {
+		whereClause[f.Column] = f.Value
+	}
+
+	result := r.db.Preload(clause.Associations).Where(whereClause).Find(&t)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, result.Error
+	}
+
+	return t, nil
+}
+
 func (r Gorm[T]) FindWithRelations(id int) (*T, error) {
 	var t T
 
