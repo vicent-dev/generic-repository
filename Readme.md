@@ -9,6 +9,7 @@ Interface exposed:
 ```go
 type Repository[T Entity] interface {
     Find(id int) (*T, error)
+    FindWithRelations(id int) (*T, error)
     FindBy(fs ...Field) ([]T, error)
     FindFirstBy(fs ...Field) (*T, error)
     CreateBulk(ts []T) error

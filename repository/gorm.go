@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Gorm[T Entity] struct {
@@ -41,6 +42,18 @@ func (r Gorm[T]) FindBy(fs ...Field) ([]T, error) {
 	}
 
 	return t, nil
+}
+
+func (r Gorm[T]) FindWithRelations(id int) (*T, error) {
+	var t T
+
+	result := r.db.Preload(clause.Associations).Where(id).First(&t)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, result.Error
+	}
+
+	return &t, nil
 }
 
 func (r Gorm[T]) FindFirstBy(fs ...Field) (*T, error) {
