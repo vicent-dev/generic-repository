@@ -7,6 +7,10 @@ type Field struct {
 	Value  interface{}
 }
 
+var (
+	rs map[string]interface{}
+)
+
 type Repository[T Entity] interface {
 	Find(id int) (*T, error)
 	FindByWithRelations(fs ...Field) ([]T, error)

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"reflect"
 )
 
 type Gorm[T Entity] struct {
@@ -11,7 +12,19 @@ type Gorm[T Entity] struct {
 }
 
 func GetRepository[T Entity](db *gorm.DB) Repository[T] {
-	return Gorm[T]{db}
+	name := reflect.TypeOf((*T)(nil)).Elem().Name()
+
+	if rs == nil {
+		rs = make(map[string]interface{})
+	}
+
+	if r, ok := rs[name]; ok {
+		return r.(Repository[T])
+	}
+
+	rs[name] = Gorm[T]{db}
+
+	return rs[name].(Repository[T])
 }
 
 func (r Gorm[T]) Find(id int) (*T, error) {

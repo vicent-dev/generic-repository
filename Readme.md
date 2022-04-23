@@ -25,3 +25,6 @@ Call of repository for an `Example` entity using Gorm:
 ```go
 r := repository.GetRepository[MyEntity](db)
 ```
+
+This function will return a repository of the struct type. 
+Prepared for having only one instance in memory by struct type.
