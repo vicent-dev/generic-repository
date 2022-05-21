@@ -1,4 +1,4 @@
-module generic-go-repository
+module generic-repository
 
 go 1.18
 
