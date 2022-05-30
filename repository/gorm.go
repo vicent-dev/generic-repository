@@ -2,16 +2,17 @@ package repository
 
 import (
 	"errors"
+	"reflect"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"reflect"
 )
 
 type Gorm[T Entity] struct {
 	db *gorm.DB
 }
 
-func GetRepository[T Entity](db *gorm.DB) Repository[T] {
+func GetGormRepository[T Entity](db *gorm.DB) Repository[T] {
 	name := reflect.TypeOf((*T)(nil)).Elem().Name()
 
 	if rs == nil {

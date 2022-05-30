@@ -23,7 +23,7 @@ type Repository[T Entity] interface {
 Call of repository for an `Example` entity using Gorm:
 
 ```go
-r := repository.GetRepository[MyEntity](db)
+r := repository.GetGormRepository[MyEntity](db)
 ```
 
 This function will return a repository of the struct type. 
