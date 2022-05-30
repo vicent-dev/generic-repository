@@ -1,12 +1,8 @@
 # Go repository
 
+## About
+
 Golang database access using generics and implementation with gorm.
-
-## Install
-
-```bash
-go get github.com/vicent-dev/generic-repository
-```
 
 Interface exposed:
 
@@ -23,6 +19,14 @@ type Repository[T Entity] interface {
     Delete(t *T) error
 }
 ```
+
+## Install
+
+```bash
+go get github.com/vicent-dev/generic-repository
+```
+
+## Usage
 
 Call of repository for an `Example` entity using Gorm:
 
