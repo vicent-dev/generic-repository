@@ -28,7 +28,7 @@ go get github.com/vicent-dev/generic-repository
 
 ## Usage
 
-Call of repository for an `Example` entity using Gorm:
+Call of repository for an `MyEntity` entity using Gorm:
 
 ```go
 
