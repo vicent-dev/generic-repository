@@ -2,8 +2,6 @@
 
 Golang database access using generics and implementation with gorm.
 
-Copy and paste in your project (WIP library?)
-
 Interface exposed:
 
 ```go
