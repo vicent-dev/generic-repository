@@ -2,6 +2,12 @@
 
 Golang database access using generics and implementation with gorm.
 
+## Install
+
+```bash
+go get github.com/vicent-dev/generic-repository
+```
+
 Interface exposed:
 
 ```go
@@ -23,7 +29,7 @@ Call of repository for an `Example` entity using Gorm:
 ```go
 
 import (
-    "github.com/vicent-dev/repository"
+    repository "github.com/vicent-dev/generic-repository"
 )
 
 r := repository.GetGormRepository[MyEntity](db)
