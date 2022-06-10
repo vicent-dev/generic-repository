@@ -1,4 +1,4 @@
-module generic-repository
+module github.com/vicent-dev/generic-repository
 
 go 1.18
 
