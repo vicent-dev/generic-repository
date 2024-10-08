@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"math"
 	"reflect"
 
 	"gorm.io/gorm"
@@ -28,10 +29,10 @@ func GetGormRepository[T Entity](db *gorm.DB) Repository[T] {
 	return rs[name].(Repository[T])
 }
 
-func (r Gorm[T]) Find(id int) (*T, error) {
+func (r Gorm[T]) Find(id string) (*T, error) {
 	var t T
 
-	result := r.db.Where(id).First(&t)
+	result := r.db.First(&t, "id = ?", id)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
@@ -40,26 +41,47 @@ func (r Gorm[T]) Find(id int) (*T, error) {
 	return &t, nil
 }
 
-func (r Gorm[T]) FindBy(fs ...Field) ([]T, error) {
-	var t []T
-
-	whereClause := make(map[string]interface{}, len(fs))
-
-	for _, f := range fs {
-		whereClause[f.Column] = f.Value
+func (r Gorm[T]) FindPaginated(pageSize, page int) (*Pagination, error) {
+	p := &Pagination{
+		Limit: pageSize,
+		Page:  page,
+		Sort:  "created_at desc",
 	}
 
-	result := r.db.Where(whereClause).Find(&t)
+	var totalRows int64
+
+	var t T
+
+	r.db.Model(t).Count(&totalRows)
+
+	p.TotalRows = totalRows
+	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
+	p.TotalPages = totalPages
+
+	var ts []*T
+	r.db.Scopes(func(db *gorm.DB) *gorm.DB {
+		return db.Offset(p.GetOffset()).Limit(p.GetLimit()).Order(p.GetSort())
+	}).Find(&ts)
+
+	p.Rows = ts
+
+	return p, nil
+}
+
+func (r Gorm[T]) FindWithRelations(id string) (*T, error) {
+	var t T
+
+	result := r.db.Preload(clause.Associations).First(&t, "id = ?", id)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
 
-	return t, nil
+	return &t, nil
 }
 
-func (r Gorm[T]) FindByWithRelations(fs ...Field) ([]T, error) {
-	var t []T
+func (r Gorm[T]) FindByWithRelations(fs ...Field) ([]*T, error) {
+	var t []*T
 
 	whereClause := make(map[string]interface{}, len(fs))
 
@@ -76,16 +98,22 @@ func (r Gorm[T]) FindByWithRelations(fs ...Field) ([]T, error) {
 	return t, nil
 }
 
-func (r Gorm[T]) FindWithRelations(id int) (*T, error) {
-	var t T
+func (r Gorm[T]) FindBy(fs ...Field) ([]*T, error) {
+	var t []*T
 
-	result := r.db.Preload(clause.Associations).Where(id).First(&t)
+	whereClause := make(map[string]interface{}, len(fs))
+
+	for _, f := range fs {
+		whereClause[f.Column] = f.Value
+	}
+
+	result := r.db.Where(whereClause).Find(&t)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
 
-	return &t, nil
+	return t, nil
 }
 
 func (r Gorm[T]) FindFirstBy(fs ...Field) (*T, error) {
@@ -95,10 +123,10 @@ func (r Gorm[T]) FindFirstBy(fs ...Field) (*T, error) {
 	}
 
 	if len(ts) >= 1 {
-		return &ts[0], nil
+		return ts[0], nil
 	}
 
-	return nil, errors.New("Record not found")
+	return nil, errors.New("record not found")
 }
 
 func (r Gorm[T]) Create(t *T) error {
@@ -110,13 +138,13 @@ func (r Gorm[T]) CreateBulk(ts []T) error {
 }
 
 func (r Gorm[T]) Update(t *T, fs ...Field) error {
-	updateFields := make(map[string]interface{}, len(fs))
+	updateClause := make(map[string]interface{}, len(fs))
 
 	for _, f := range fs {
-		updateFields[f.Column] = f.Value
+		updateClause[f.Column] = f.Value
 	}
 
-	return r.db.Model(t).Updates(updateFields).Error
+	return r.db.Model(t).Updates(updateClause).Error
 }
 
 func (r Gorm[T]) Delete(t *T) error {

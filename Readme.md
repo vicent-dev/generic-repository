@@ -8,10 +8,11 @@ Interface exposed:
 
 ```go
 type Repository[T Entity] interface {
-    Find(id int) (*T, error)
-    FindByWithRelations(fs ...Field) ([]T, error)
-    FindWithRelations(id int) (*T, error)
-    FindBy(fs ...Field) ([]T, error)
+    Find(id string) (*T, error)
+    FindWithRelations(id string) (*T, error)
+    FindBy(fs ...Field) ([]*T, error)
+    FindPaginated(pageSize, page int) (*Pagination, error)
+    FindByWithRelations(fs ...Field) ([]*T, error)
     FindFirstBy(fs ...Field) (*T, error)
     CreateBulk(ts []T) error
     Create(t *T) error
